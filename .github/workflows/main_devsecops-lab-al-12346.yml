@@ -21,6 +21,15 @@ jobs:
           tenant-id: ${{ secrets.AZURE_TENANT_ID }}
           subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
 
+      - name: Show who/where we are logged into
+        run: |
+          az account show --query "{name:name, id:id, tenantId:tenantId, user:user.name}" -o json
+
+      - name: List web apps visible in this subscription
+        run: |
+          az webapp list --query "[].{name:name, rg:resourceGroup, location:location}" -o table
+
+
       - name: Zip site content
         run: |
           zip -r site.zip index.html web.config
@@ -30,4 +39,5 @@ jobs:
         with:
           app-name: devsecops-lab-al-12346-b4bdbafacfg7age4
           package: site.zip
+
 
