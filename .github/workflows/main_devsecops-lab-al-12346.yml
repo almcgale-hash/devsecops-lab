@@ -1,18 +1,25 @@
-name: Deploy Static Site to Azure Web App
+name: Deploy static site to Azure App Service
 
 on:
   push:
     branches: [ "main" ]
 
 permissions:
+  id-token: write
   contents: read
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
-
     steps:
       - uses: actions/checkout@v4
+
+      - name: Azure login (OIDC)
+        uses: azure/login@v2
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
 
       - name: Zip site content
         run: |
@@ -22,5 +29,4 @@ jobs:
         uses: azure/webapps-deploy@v3
         with:
           app-name: devsecops-lab-al-12346
-          publish-profile: ${{ secrets.devsecops-lab-al-12346 }}
           package: site.zip
