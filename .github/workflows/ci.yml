@@ -1,0 +1,12 @@
+name: My First Pipeline
+
+on:
+  push:
+    branches: [ "main" ]
+
+jobs:
+  hello:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Say hello
+        run: echo "My pipeline is working!"
