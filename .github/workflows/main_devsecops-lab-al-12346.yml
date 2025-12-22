@@ -28,5 +28,6 @@ jobs:
       - name: Deploy to Azure Web App
         uses: azure/webapps-deploy@v3
         with:
-          app-name: devsecops-lab-al-12346
+          app-name: devsecops-lab-al-12346-b4bdbafacfg7age4
           package: site.zip
+
