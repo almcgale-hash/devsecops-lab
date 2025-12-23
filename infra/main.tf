@@ -18,7 +18,9 @@ resource "azurerm_windows_web_app" "app" {
   location            = azurerm_resource_group.rg.location
   service_plan_id     = azurerm_service_plan.plan.id
 
-  site_config {}
+  site_config {
+    always_on = false
+  }
 }
 
 resource "random_string" "suffix" {
