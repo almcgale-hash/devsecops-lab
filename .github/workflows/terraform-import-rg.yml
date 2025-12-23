@@ -26,8 +26,13 @@ jobs:
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
 
-      - name: Terraform init
-        run: terraform init
+      - name: Terraform init (remote state)
+        run: |
+          terraform init \
+            -backend-config="resource_group_name=rg-tfstate" \
+            -backend-config="storage_account_name=tfstateal12346" \
+            -backend-config="container_name=tfstate" \
+            -backend-config="key=devsecops-lab.tfstate"
 
       - name: Import existing RG into state
         run: |
