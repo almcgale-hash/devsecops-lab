@@ -45,7 +45,7 @@ jobs:
         run: |
           terraform init -input=false -reconfigure \
             -backend-config="resource_group_name=rg-tfstate" \
-            -backend-config="storage_account_name=YOUR_STORAGE_ACCOUNT_NAME" \
+            -backend-config="storage_account_name=tfstateal12346" \
             -backend-config="container_name=tfstate" \
             -backend-config="key=devsecops-lab.tfstate"
 
@@ -88,7 +88,7 @@ jobs:
         run: |
           terraform init -input=false -reconfigure \
             -backend-config="resource_group_name=rg-tfstate" \
-            -backend-config="storage_account_name=YOUR_STORAGE_ACCOUNT_NAME" \
+            -backend-config="storage_account_name=tfstateal12346" \
             -backend-config="container_name=tfstate" \
             -backend-config="key=devsecops-lab.tfstate"
 
