@@ -1,0 +1,42 @@
+name: Terraform Import App Service Plan
+
+on:
+  workflow_dispatch:
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  import-plan:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: infra
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Azure login (OIDC)
+        uses: azure/login@v2
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+
+      - name: Terraform init (remote state)
+        run: |
+          terraform init -input=false -reconfigure \
+            -backend-config="resource_group_name=rg-tfstate" \
+            -backend-config="storage_account_name=tfstateal12346" \
+            -backend-config="container_name=tfstate" \
+            -backend-config="key=devsecops-lab.tfstate"
+
+      - name: Import existing App Service Plan into state
+        run: |
+          terraform import azurerm_service_plan.plan "/subscriptions/${{ secrets.AZURE_SUBSCRIPTION_ID }}/resourceGroups/rg-devsecops-lab/providers/Microsoft.Web/serverFarms/asp-devsecops-lab"
+
+      - name: Terraform plan (sanity check)
+        run: terraform plan
