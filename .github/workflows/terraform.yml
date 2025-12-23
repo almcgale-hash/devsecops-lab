@@ -95,3 +95,10 @@ jobs:
 
       - name: Terraform apply
         run: terraform apply -auto-approve
+
+      - name: Terraform output
+        id: tfout
+        run: |
+          echo "WEB_APP_NAME=$(terraform output -raw web_app_name)" >> $GITHUB_ENV
+          echo "WEB_APP_HOST=$(terraform output -raw web_app_default_hostname)" >> $GITHUB_ENV
+
