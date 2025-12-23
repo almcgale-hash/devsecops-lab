@@ -104,10 +104,11 @@ jobs:
 
       - name: Zip site content
         run: |
+          cd $GITHUB_WORKSPACE
           zip -r site.zip index.html vulnerable.html vulnerable.js app.js web.config
 
       - name: Deploy app to Azure Web App
         uses: azure/webapps-deploy@v3
         with:
           app-name: ${{ env.WEB_APP_NAME }}
-          package: site.zip
+          package: ${{ github.workspace }}/site.zip
