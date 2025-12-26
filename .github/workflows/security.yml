@@ -13,8 +13,9 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          fetch-depth: 2
-
+          fetch-depth: 0
+          ref: ${{ github.head_ref }}
+          
       - name: Run Gitleaks
         uses: gitleaks/gitleaks-action@v2
         env:
