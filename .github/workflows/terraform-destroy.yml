@@ -1,0 +1,45 @@
+name: Terraform Destroy (Lab)
+
+on:
+  workflow_dispatch:
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  destroy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    defaults:
+      run:
+        working-directory: infra
+    env:
+      ARM_USE_OIDC: true
+      ARM_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
+      ARM_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
+      ARM_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Azure login (OIDC)
+        uses: azure/login@v2
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+
+      - name: Terraform init (remote state)
+        run: |
+          terraform init -input=false -reconfigure \
+            -backend-config="resource_group_name=rg-tfstate" \
+            -backend-config="storage_account_name=tfstateal12346" \
+            -backend-config="container_name=tfstate" \
+            -backend-config="key=devsecops-lab.tfstate"
+
+      - name: Terraform destroy
+        run: terraform destroy -auto-approve
