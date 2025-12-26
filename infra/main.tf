@@ -23,7 +23,7 @@ resource "azurerm_windows_web_app" "app" {
     always_on = false
   }
 }
-
+ 
 resource "random_string" "suffix" {
   length  = 8
   special = false
