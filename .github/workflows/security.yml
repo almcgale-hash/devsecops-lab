@@ -14,8 +14,12 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
-  
-      - name: Run Gitleaks
+          ref: ${{ github.head_ref }}
+          
+      - name: Run Gitleaks (full scan)
         uses: gitleaks/gitleaks-action@v2
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          args: detect --source . --no-git --redact --report-format sarif --report-path results.sarif
+

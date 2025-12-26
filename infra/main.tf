@@ -2,6 +2,7 @@ resource "azurerm_resource_group" "rg" {
   name     = "rg-devsecops-lab"
   location = "canadacentral"
 }
+# PR test change - triggers terraform plan
 
 resource "azurerm_service_plan" "plan" {
   name                = "asp-devsecops-lab"
