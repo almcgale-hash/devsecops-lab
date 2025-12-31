@@ -1,0 +1,77 @@
+name: Terraform (Data) - Import Existing Resources
+
+on:
+  workflow_dispatch:
+    inputs:
+      data_storage_account_name:
+        description: "Storage account name inside rg-nfl-data (example: stnflabc123)"
+        required: true
+        type: string
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  import:
+    runs-on: ubuntu-latest
+
+    env:
+      ARM_USE_OIDC: true
+      ARM_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
+      ARM_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
+      ARM_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+      DATA_SA_NAME: ${{ inputs.data_storage_account_name }}
+
+    defaults:
+      run:
+        working-directory: infra-data
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Azure login (OIDC)
+        uses: azure/login@v2
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+
+      - name: Terraform init (remote state)
+        run: |
+          terraform init -input=false -reconfigure \
+            -backend-config="resource_group_name=rg-tfstate" \
+            -backend-config="storage_account_name=tfstateal12346" \
+            -backend-config="container_name=tfstate" \
+            -backend-config="key=nfl-data.tfstate"
+
+      # Import the pre-existing RG into THIS state file
+      - name: Import rg-nfl-data
+        run: |
+          terraform import \
+            azurerm_resource_group.data \
+            "/subscriptions/${ARM_SUBSCRIPTION_ID}/resourceGroups/rg-nfl-data"
+
+      # Import the pre-existing storage account into THIS state file
+      - name: Import storage account
+        run: |
+          terraform import \
+            azurerm_storage_account.data \
+            "/subscriptions/${ARM_SUBSCRIPTION_ID}/resourceGroups/rg-nfl-data/providers/Microsoft.Storage/storageAccounts/${DATA_SA_NAME}"
+
+      # Import the containers (raw + curated) into THIS state file
+      - name: Import containers
+        run: |
+          terraform import \
+            azurerm_storage_container.raw \
+            "/subscriptions/${ARM_SUBSCRIPTION_ID}/resourceGroups/rg-nfl-data/providers/Microsoft.Storage/storageAccounts/${DATA_SA_NAME}/blobServices/default/containers/raw"
+
+          terraform import \
+            azurerm_storage_container.curated \
+            "/subscriptions/${ARM_SUBSCRIPTION_ID}/resourceGroups/rg-nfl-data/providers/Microsoft.Storage/storageAccounts/${DATA_SA_NAME}/blobServices/default/containers/curated"
+
+      - name: Terraform plan (sanity check)
+        run: terraform plan
