@@ -63,15 +63,15 @@ jobs:
             "/subscriptions/${ARM_SUBSCRIPTION_ID}/resourceGroups/rg-nfl-data/providers/Microsoft.Storage/storageAccounts/${DATA_SA_NAME}"
 
       # Import the containers (raw + curated) into THIS state file
-      - name: Import containers
+            - name: Import containers (URL format)
         run: |
           terraform import \
             azurerm_storage_container.raw \
-            "/subscriptions/${ARM_SUBSCRIPTION_ID}/resourceGroups/rg-nfl-data/providers/Microsoft.Storage/storageAccounts/${DATA_SA_NAME}/blobServices/default/containers/raw"
+            "https://${DATA_SA_NAME}.blob.core.windows.net/raw"
 
           terraform import \
             azurerm_storage_container.curated \
-            "/subscriptions/${ARM_SUBSCRIPTION_ID}/resourceGroups/rg-nfl-data/providers/Microsoft.Storage/storageAccounts/${DATA_SA_NAME}/blobServices/default/containers/curated"
+            "https://${DATA_SA_NAME}.blob.core.windows.net/curated"
 
       - name: Terraform plan (sanity check)
         run: terraform plan
